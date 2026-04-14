@@ -10,8 +10,10 @@
         "react-dom": "18.2.0",
         "@types/react": "18.2.0",
         "@types/react-dom": "18.2.0",
-        "ajv": "8.12.0",
-        "ajv-keywords": "5.1.0"
+        "fork-ts-checker-webpack-plugin": {
+            "ajv": "6.12.6",
+            "ajv-keywords": "3.5.2"
+        }
     },
     "dependencies": {
         "@fluentui/react-components": "^9.46.6",
@@ -25,6 +27,8 @@
         "@microsoft/teams-js": "^2.7.1",
         "@microsoft/teamsfx": "^2.2.0",
         "@microsoft/teamsfx-react": "^3.0.0",
+        "ajv": "6.12.6",
+        "ajv-keywords": "3.5.2",
         "axios": "^0.21.1",
         "clarity-js": "^0.7.31",
         "crypto": "^1.0.1",
