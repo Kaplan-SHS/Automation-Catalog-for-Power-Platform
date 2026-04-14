@@ -1,163 +1,90 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
-
-name: Build and Deploy Automation Catalog
-on: 
-  workflow_dispatch
-
-permissions:
-  id-token: write
-  contents: read
-jobs:    
-  build-api:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'
-      
-      - name: Restore dependencies
-        run: dotnet restore AutomationCatalogForPowerPlatform/ACPP.API/ACPP.API.csproj
-      
-      - name: Change Directory
-        run: cd AutomationCatalogForPowerPlatform/ACPP.API
-      
-      - name: Build API
-        run: dotnet build AutomationCatalogForPowerPlatform/ACPP.API/ACPP.API.csproj --configuration Release --no-restore
-
-      - name: Publish API
-        run: dotnet publish AutomationCatalogForPowerPlatform/ACPP.API/ACPP.API.csproj --configuration Release --no-restore --output ${{ github.workspace }}/dropAPI/ACPP.API
-
-      - name: Upload API Artifact
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: dropAPI
-          path: ${{ github.workspace }}/dropAPI
-
-  build-ui:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4.4.0
-        with:
-          node-version: '18.15.x'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Install Packages
-        run: npm install
-        working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
-
-      - name: Force React 18
-        run: |
-          npm install scheduler@0.23.0 --legacy-peer-deps --force
-          npm install react@18.2.0 react-dom@18.2.0 @types/react@18.2.0 @types/react-dom@18.2.0 react-router-dom@6.8.0 --legacy-peer-deps --force
-        working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
-
-      - name: Debug React versions
-        run: |
-          cat node_modules/react/package.json | findstr "\"version\""
-          cat node_modules/react-dom/package.json | findstr "\"version\""
-          npm ls react 2>&1 | findstr "react@"
-        working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
-        shell: cmd
-
-      - name: Build UI
-        run: |
-          set REACT_APP_BUILD_ID=${{ github.run_number }}
-          set REACT_APP_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}
-          set REACT_APP_DEFAULT_TOKEN_SCOPE=api://${{ vars.APPSERVICE }}.azurewebsites.net/${{ secrets.AZURE_CLIENT_ID }}
-          set REACT_APP_ADMIN_ENV=${{ vars.ADMINENVIRONMENT }}
-          set REACT_APP_AI_CONNECTION_STRING=${{ vars.APPINSIGHTSCONNECTIONSTRING }}
-          set TEAMSAPPID=${{ vars.TEAMSAPPID }}
-          set FEEDBACKFORMURL=${{ vars.FEEDBACKFORMURL }}
-          set FAQURL=${{ vars.FAQURL }}
-
-          if "%TEAMSAPPID%"=="TEAMSAPPID_PH" (
-            set REACT_APP_TEAMS_APP_ID=
-          ) else (
-            set REACT_APP_TEAMS_APP_ID=%TEAMSAPPID%
-          )
-
-          if "%FEEDBACKFORMURL%"=="FEEDBACKFORMURL_PH" (
-            set REACT_APP_FEEDBACK_FORM_URL=
-          ) else (
-            set REACT_APP_FEEDBACK_FORM_URL=%FEEDBACKFORMURL%
-          )
-
-          if "%FAQURL%"=="FAQURL_PH" (
-            set REACT_APP_FAQ_URL=
-          ) else (
-            set REACT_APP_FAQ_URL=%FAQURL%
-          )
-
-          npm run build:prod
-        working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
-        env:
-          CI: ""
-        shell: cmd
-
-      - name: Copy Locales
-        run: xcopy "src\\i18n\\locales" "build\\static\\locales\\" /e /s /y
-        shell: cmd
-        working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
-
-      - name: Copy files excluding map
-        run: |
-          $source = "AutomationCatalogForPowerPlatform/ACPP.Client/build"
-          $target = "$env:GITHUB_WORKSPACE/dropUI/ACPP.Client/ClientApp"
-          robocopy $source $target /E /XF *.map
-          $exitCode = $LASTEXITCODE
-          if($exitCode -le 7) {
-            exit 0 
-          } else {
-            exit $exitCode
-          }
-        shell: pwsh
-
-      - name: Upload UI Artifact
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: dropUI
-          path: ${{ github.workspace }}/dropUI
-
-  deploy-code:
-    needs: [build-api, build-ui]
-    runs-on: windows-latest
-    steps:
-      - name: Download API Artifact
-        uses: actions/download-artifact@v4.3.0
-        with:
-          name: dropAPI
-          path: dropAPI
-
-      - name: Download UI Artifact
-        uses: actions/download-artifact@v4.3.0
-        with:
-          name: dropUI
-          path: dropUI
-
-      - name: Merge API and UI
-        run: |
-          xcopy "dropAPI\\ACPP.API" "${{ github.workspace }}\\dist" /e /s /i
-          xcopy "dropUI\\ACPP.Client\\ClientApp" "${{ github.workspace }}\\dist\\ClientApp" /e /s /i
-
-      - name: Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_FIC_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          allow-no-subscriptions: true
-
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ vars.APPSERVICE }}
-          package: ${{ github.workspace }}/dist
+{
+    "name": "automationcatalogforpowerplatform",
+    "version": "0.1.0",
+    "engines": {
+        "node": "16 || 18"
+    },
+    "private": true,
+    "overrides": {
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
+        "@types/react": "18.2.0",
+        "@types/react-dom": "18.2.0"
+    },
+    "dependencies": {
+        "@fluentui/react-components": "^9.46.6",
+        "@fluentui/react-icons": "^2.0.212",
+        "@fluentui/react-search-preview": "^0.1.23",
+        "@microsoft/applicationinsights-web": "^3.2.1",
+        "@microsoft/mgt-element": "2.9.1",
+        "@microsoft/mgt-react": "2.9.1",
+        "@microsoft/mgt-teamsfx-provider": "2.9.1",
+        "@microsoft/microsoft-graph-client": "^3.0.1",
+        "@microsoft/teams-js": "^2.7.1",
+        "@microsoft/teamsfx": "^2.2.0",
+        "@microsoft/teamsfx-react": "^3.0.0",
+        "axios": "^0.21.1",
+        "clarity-js": "^0.7.31",
+        "crypto": "^1.0.1",
+        "dompurify": "^3.2.3",
+        "gulp": "^4.0.2",
+        "gulp-json-editor": "^2.6.0",
+        "i18next": "^23.4.5",
+        "i18next-http-backend": "^2.2.1",
+        "minimist": "^1.2.8",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
+        "react-i18next": "^13.2.0",
+        "react-markdown": "8.0.7",
+        "react-query": "^3.39.3",
+        "react-router-dom": "6.8.0",
+        "react-scripts": "5.0.1",
+        "rehype-raw": "^6.1.1",
+        "use-between": "^1.3.5"
+    },
+    "devDependencies": {
+        "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+        "@babel/preset-env": "^7.22.20",
+        "@testing-library/jest-dom": "^6.1.2",
+        "@testing-library/react": "^14.0.0",
+        "@types/jest": "^29.5.5",
+        "@types/node": "^14.0.0",
+        "@types/react": "18.2.0",
+        "@types/react-dom": "18.2.0",
+        "@types/react-router-dom": "^5.3.3",
+        "babel-jest": "^29.7.0",
+        "env-cmd": "^10.1.0",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.6.4",
+        "sass": "^1.66.1",
+        "ts-jest": "^29.1.1",
+        "typescript": "^4.1.2"
+    },
+    "scripts": {
+        "dev:teamsfx": "set REACT_APP_ENV=development&& env-cmd --silent -f .localConfigs npm run start",
+        "start": "gulp symlink-locales && react-scripts start",
+        "build:prod": "gulp copy-locales && set REACT_APP_ENV=production&& react-scripts build",
+        "build:dev": "gulp copy-locales && set REACT_APP_ENV=development&& react-scripts build",
+        "eject": "react-scripts eject",
+        "test": "jest"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "homepage": "."
+}
