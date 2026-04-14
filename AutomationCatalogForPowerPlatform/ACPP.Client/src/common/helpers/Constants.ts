@@ -21,7 +21,7 @@ export const ICON_CARD_MOBILE_WIDTH = '375px';
 export const CARD_CAROUSEL_GAP = '6';
 
 // eslint-disable-next-line no-template-curly-in-string
-export const DEEPLINK_BASE_URL = 'https://aka.ms/automationhub?context={"subEntityId":"{\'cardUniqueName\':${cardUniqueName},\'source\':\'Teams\'"}';
+export const DEEPLINK_BASE_URL = `https://aka.ms/automationhub?context={"subEntityId":"{'cardUniqueName':${`+"`cardUniqueName`"+`},'source':'Teams'}"}`;
 
 enum IntentTypes {
   ERROR = "error",
@@ -49,7 +49,6 @@ export const CentroUrl = {
 export const CARD_CAROUSEL_TYPE_ACCORDION: string = "accordion";
 export const CARD_CAROUSEL_TYPE_DIV: string = "div";
 
-//remove DEEPLINK_SHOWCARDPREVIEW after few months.... recreate all deeplinks to use cardUniqueName
 export const DEEPLINK_SHOWCARDPREVIEW = "showCardPreview"
 export const DEEPLINK_CARDUNIQUENAME = "cardUniqueName"
 export const DEEPLINK_SOURCE = "source"
@@ -59,7 +58,6 @@ export const DEEPLINK_FEEDBACK = "showFeedbackMenu";
 
 export const CardCategoryMapping: { [key: string]: string } = {
   "774500000": "Miscellaneous",
-  "774500001": "ADO Management",
   "774500002": "Calendar Management",
   "774500003": "Communication",
   "774500004": "Email Management",
