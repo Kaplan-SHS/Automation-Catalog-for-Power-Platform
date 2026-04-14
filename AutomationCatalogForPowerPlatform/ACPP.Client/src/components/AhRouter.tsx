@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+// Modified by Kaplan International — KI Automation Hub
 
 import { useRoutes } from 'react-router-dom';
 import { HomePage } from './homePage/HomePage';
@@ -10,6 +11,7 @@ import Settings from './settings/Settings';
 import { Suspense } from 'react';
 import { CenteredSpinner } from './centeredSpinner/centeredSpinner';
 import { MyProfilePage } from './myProfilePage/MyProfilePage';
+import { ImpactPage } from './impactPage/ImpactPage';
 
 export const AHRouter = () => {
   const GetComponentWithSuspense = (component: JSX.Element) => {
@@ -47,7 +49,11 @@ export const AHRouter = () => {
       element: GetComponentWithSuspense(<MyProfilePage />),
       path: '/MyProfile',
       id: 'myProfile',
-    }
+    },
+    {
+      element: GetComponentWithSuspense(<ImpactPage />),
+      path: '/Impact',
+      id: 'impact',
+    },
   ]);
 };
-
