@@ -58,6 +58,14 @@ jobs:
         run: npm install react@18.2.0 react-dom@18.2.0 @types/react@18.2.0 @types/react-dom@18.2.0 react-router-dom@6.8.0 --legacy-peer-deps --force
         working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
 
+      - name: Debug React versions
+        run: |
+          cat node_modules/react/package.json | findstr "\"version\""
+          cat node_modules/react-dom/package.json | findstr "\"version\""
+          npm ls react 2>&1 | findstr "react@"
+        working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
+        shell: cmd
+
       - name: Build UI
         run: |
           set REACT_APP_BUILD_ID=${{ github.run_number }}
