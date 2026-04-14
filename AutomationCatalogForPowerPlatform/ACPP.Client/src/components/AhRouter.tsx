@@ -11,7 +11,7 @@ import Settings from './settings/Settings';
 import { Suspense } from 'react';
 import { CenteredSpinner } from './centeredSpinner/centeredSpinner';
 import { MyProfilePage } from './myProfilePage/MyProfilePage';
-import { ImpactPage } from './impactPage/ImpactPage';
+import ImpactPage from './impactPage/ImpactPage';
 
 export const AHRouter = () => {
   const GetComponentWithSuspense = (component: JSX.Element) => {
