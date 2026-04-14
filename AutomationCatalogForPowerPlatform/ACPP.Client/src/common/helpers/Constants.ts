@@ -21,7 +21,7 @@ export const ICON_CARD_MOBILE_WIDTH = '375px';
 export const CARD_CAROUSEL_GAP = '6';
 
 // eslint-disable-next-line no-template-curly-in-string
-export const DEEPLINK_BASE_URL = `https://aka.ms/automationhub?context={"subEntityId":"{'cardUniqueName':${`+"`cardUniqueName`"+`},'source':'Teams'}"}`;
+export const DEEPLINK_BASE_URL = 'https://aka.ms/automationhub?context={"subEntityId":"{}"}';
 
 enum IntentTypes {
   ERROR = "error",
