@@ -1,54 +1,62 @@
-/* Copyright (c) Microsoft Corporation.
-Licensed under the MIT License. */
+/* KI Automation Hub — Kaplan International */
+/* Based on open source project licensed under MIT License (c) Microsoft Corporation */
 
-* {
-  box-sizing: border-box;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --ki-blue-primary: #003087;
+  --ki-blue-dark: #001f5e;
+  --ki-blue-light: #1a4faa;
+  --ki-blue-accent: #0057c8;
+  --ki-white: #ffffff;
+  --ki-off-white: #f4f6fb;
+  --ki-gray-light: #e8ecf4;
+  --ki-gray-mid: #8a99b5;
+  --ki-gray-dark: #3d4a6b;
+  --ki-success: #1a7f5a;
+  --ki-warning: #c87800;
+  --ki-error: #c0392b;
+  --ki-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
-    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family: var(--ki-font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  height: "100vh";
-  width: "100vw";
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--ki-off-white);
+  color: var(--ki-gray-dark);
 }
 
-/* Custom smooth scroll start*/
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--ki-gray-light); border-radius: 20px; }
+::-webkit-scrollbar-thumb { background: var(--ki-blue-light); border-radius: 20px; border: 1px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--ki-blue-primary); }
+::-webkit-scrollbar-thumb:active { background-color: var(--ki-blue-dark); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* width */
-::-webkit-scrollbar {
-  width: 10px;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ki-font);
+  font-weight: 700;
+  color: var(--ki-blue-primary);
+  letter-spacing: -0.02em;
 }
 
-/* Track */
-::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 20px;
-}
+a { color: var(--ki-blue-accent); }
+a:hover { color: var(--ki-blue-dark); }
 
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #888;
-  -webkit-background-clip: padding-box;
-  background-clip: padding-box;
-  border: 1px solid transparent;
-  border-radius: 20px;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-::-webkit-scrollbar-thumb:active {
-  background-color: rgb(128, 128, 128);
-}
-
-/* Custom smooth scroll end */
-
-/* no scroll bar start */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+.fui-FluentProvider {
+  --colorBrandBackground: var(--ki-blue-primary);
+  --colorBrandBackgroundHover: var(--ki-blue-light);
+  --colorBrandBackgroundPressed: var(--ki-blue-dark);
+  --colorBrandForeground1: var(--ki-blue-primary);
+  --colorBrandForeground2: var(--ki-blue-light);
+  --colorNeutralForeground2BrandHover: var(--ki-blue-accent);
+  --colorNeutralForeground2BrandPressed: var(--ki-blue-dark);
+  --colorNeutralBackground1: var(--ki-white);
+  --colorNeutralBackground2: var(--ki-off-white);
 }
