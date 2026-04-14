@@ -153,4 +153,44 @@ export default function Navbar() {
         ))}
       </div>
       <div className={classes.navbarRightMenu}>
-        {width <= screenSizes.sm
+        {width <= screenSizes.sm ? null : (
+          <div className={classes.navbarRightSubMenu}>
+            {rightMenuItems
+              .filter((item) => item.showInNavbar)
+              .map((item) => (
+                <div key={item.id} title={item.label} className={classes.navbarMenuItem} onClick={item.onclick} onKeyDown={handleEnter} tabIndex={0}>
+                  {item.icon}
+                </div>
+              ))}
+          </div>
+        )}
+        {rightMenuItems
+          .filter((item) => !item.showInNavbar || (width < screenSizes.sm && item.showInNavbar)).length > 0
+          ? <Menu>
+            <MenuTrigger disableButtonEnhancement>
+              <div className={classes.navbarMenuItem} title={t('Navbar:more')}>
+                <MoreHorizontal24Regular
+                  className={classes.navbarRightMenuItemLink}
+                  aria-label="More"
+                  data-testid="moreIcon"
+                />
+              </div>
+            </MenuTrigger>
+            <MenuPopover>
+              <MenuList data-testid="moreMenu">
+                {rightMenuItems
+                  .filter((item) => !item.showInNavbar || (width < screenSizes.sm && item.showInNavbar))
+                  .map((item) => (
+                    <MenuItem key={item.id} onClick={item.onclick}>
+                      {item.label}
+                    </MenuItem>
+                  ))}
+              </MenuList>
+            </MenuPopover>
+          </Menu>
+          : <></>
+        }
+      </div>
+    </div>
+  );
+}
