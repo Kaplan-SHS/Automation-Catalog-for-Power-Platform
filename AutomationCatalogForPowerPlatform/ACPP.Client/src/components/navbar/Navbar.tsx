@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+// Modified by Kaplan International — KI Automation Hub
 
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, Text } from '@fluentui/react-components';
@@ -32,7 +33,6 @@ export default function Navbar() {
       });
     }
   }, []);
-
 
   const onSettingsClick = useCallback(() => {
     trackEvent('MENU_ITEM_CLICK', {
@@ -71,25 +71,25 @@ export default function Navbar() {
       {
         id: 'home',
         label: t('Navbar:home'),
-        onclick: () => {
-          navigate('/');
-        },
+        onclick: () => { navigate('/'); },
         paths: ['/', '/HomePage', '/Home', '/index.html', '/StaticContent/hometab/index.html'],
       },
       {
         id: 'myProfile',
         label: t('Navbar:myProfile'),
-        onclick: () => {
-          navigate('/MyProfile');
-        },
+        onclick: () => { navigate('/MyProfile'); },
         paths: ['/MyProfile'],
+      },
+      {
+        id: 'impact',
+        label: '⚡ KI Impact',
+        onclick: () => { navigate('/Impact'); },
+        paths: ['/Impact'],
       },
       {
         id: 'about',
         label: t('Navbar:about'),
-        onclick: () => {
-          navigate('/About');
-        },
+        onclick: () => { navigate('/About'); },
         paths: ['/About'],
       },
     ];
@@ -100,9 +100,7 @@ export default function Navbar() {
       id: 'settings',
       icon: <Settings24Regular className={classes.navbarRightMenuItemLink} data-testid="settingsIcon" />,
       label: t('Navbar:settings'),
-      onclick: () => {
-        onSettingsClick();
-      },
+      onclick: () => { onSettingsClick(); },
       showInNavbar: true
     }];
 
@@ -111,9 +109,7 @@ export default function Navbar() {
         id: 'feedback',
         icon: <PersonFeedback24Regular className={classes.navbarRightMenuItemLink} data-testid="feedbackIcon" />,
         label: t('Navbar:feedback'),
-        onclick: () => {
-          handleFeedbackClick();
-        },
+        onclick: () => { handleFeedbackClick(); },
         showInNavbar: true,
       });
     }
@@ -123,11 +119,9 @@ export default function Navbar() {
         id: 'help',
         icon: <QuestionCircle24Regular className={classes.navbarRightMenuItemLink} data-testid="helpIcon" />,
         label: t('Navbar:help'),
-        onclick: () => {
-          onHelpClick();
-        },
+        onclick: () => { onHelpClick(); },
         showInNavbar: true,
-      })
+      });
     }
 
     return itemsToReturn;
@@ -142,11 +136,11 @@ export default function Navbar() {
   return (
     <div className={classes.root}>
       <div className={classes.logo}>
-        <img className={classes.logoImg} src={config.ahLogo} alt="Logo" />
+        <img className={classes.logoImg} src={config.ahLogo} alt="KI Automation Hub Logo" />
       </div>
       <div className={classes.navbarTitle}>
         <Text weight="bold" size={500}>
-          {config.appTitle}
+          KI Automation Hub
         </Text>
       </div>
       <div className={classes.navbarLeftMenu}>
@@ -159,46 +153,4 @@ export default function Navbar() {
         ))}
       </div>
       <div className={classes.navbarRightMenu}>
-        {width <= screenSizes.sm ? null : (
-          <div className={classes.navbarRightSubMenu}>
-            {rightMenuItems
-              .filter((item) => item.showInNavbar)
-              .map((item) => (
-                <div key={item.id} title={item.label} className={classes.navbarMenuItem} onClick={item.onclick} onKeyDown={handleEnter} tabIndex={0}>
-                  {item.icon}
-                </div>
-              ))}
-          </div>
-        )}
-        {rightMenuItems
-          .filter((item) => !item.showInNavbar || (width < screenSizes.sm && item.showInNavbar)).length > 0
-          ? <Menu>
-            <MenuTrigger disableButtonEnhancement>
-              <div className={classes.navbarMenuItem} title={t('Navbar:more')}>
-                <MoreHorizontal24Regular
-                  className={classes.navbarRightMenuItemLink}
-                  aria-label="More"
-                  data-testid="moreIcon"
-                />
-              </div>
-            </MenuTrigger>
-
-            <MenuPopover>
-              <MenuList data-testid="moreMenu">
-                {rightMenuItems
-                  .filter((item) => !item.showInNavbar || (width < screenSizes.sm && item.showInNavbar))
-                  .map((item) => (
-                    <MenuItem key={item.id} onClick={item.onclick}>
-                      {item.label}
-                    </MenuItem>
-                  ))}
-              </MenuList>
-            </MenuPopover>
-          </Menu>
-          : <></>
-        }
-      </div>
-    </div>
-  );
-}
-
+        {width <= screenSizes.sm
