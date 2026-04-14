@@ -25,7 +25,7 @@ const config = {
   adminDefaultEnv: process.env.REACT_APP_ADMIN_ENV !== '$(adminEnvironment)' ? process.env.REACT_APP_ADMIN_ENV : EMPTY_STRING,
   feedbackFormUrl: process.env.REACT_APP_FEEDBACK_FORM_URL !== '$(feedBackFormUrl)' ? process.env.REACT_APP_FEEDBACK_FORM_URL : EMPTY_STRING,
   faqUrl: process.env.REACT_APP_FAQ_URL !== '$(faqUrl)' ? process.env.REACT_APP_FAQ_URL : EMPTY_STRING,
-  appTitle: 'Automation Catalog for Power Platform',
+  appTitle: 'KI Automation Hub',
   authStartPage: 'auth-start.html',
   apiEndpoint: window.location.origin,
   ...appConfig,
