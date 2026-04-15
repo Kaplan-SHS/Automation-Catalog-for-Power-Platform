@@ -54,6 +54,10 @@ jobs:
         run: npm install --legacy-peer-deps --force
         working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
 
+      - name: Fix ajv
+        run: npm install ajv@8.12.0 ajv-keywords@5.1.0 --legacy-peer-deps
+        working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
+
       - name: Clear webpack cache
         run: |
           if exist node_modules\.cache rmdir /s /q node_modules\.cache
