@@ -51,7 +51,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install Packages
-        run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps --force
         working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
 
       - name: Clear webpack cache
