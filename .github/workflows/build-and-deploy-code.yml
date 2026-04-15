@@ -54,6 +54,7 @@ jobs:
         run: |
           npm install --legacy-peer-deps
           npm install ajv@8.12.0 ajv-keywords@5.1.0 --legacy-peer-deps --save
+          npm install react@18.2.0 react-dom@18.2.0 --legacy-peer-deps --force
         working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
 
       - name: Clear webpack cache
