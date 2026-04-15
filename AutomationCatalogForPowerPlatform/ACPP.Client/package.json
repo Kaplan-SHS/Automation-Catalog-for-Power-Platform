@@ -5,12 +5,6 @@
         "node": "16 || 18"
     },
     "private": true,
-    "overrides": {
-        "react": "18.2.0",
-        "react-dom": "18.2.0",
-        "@types/react": "18.2.0",
-        "@types/react-dom": "18.2.0"
-    },
     "dependencies": {
         "@fluentui/react-components": "^9.46.6",
         "@fluentui/react-icons": "^2.0.212",
@@ -25,6 +19,7 @@
         "@microsoft/teamsfx-react": "^3.0.0",
         "axios": "^0.21.1",
         "clarity-js": "^0.7.31",
+        "crypto": "^1.0.1",
         "dompurify": "^3.2.3",
         "gulp": "^4.0.2",
         "gulp-json-editor": "^2.6.0",
