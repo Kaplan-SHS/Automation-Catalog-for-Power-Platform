@@ -10,9 +10,20 @@
         "react-dom": "18.2.0",
         "@types/react": "18.2.0",
         "@types/react-dom": "18.2.0",
-        "ajv": "^6.12.6",
-        "ajv-keywords": "^3.5.2",
-        "ajv-formats": "^1.6.1"
+        "ajv": "^8.12.0",
+        "ajv-formats": "^2.1.1",
+        "fork-ts-checker-webpack-plugin": {
+            "ajv": "^6.12.6",
+            "ajv-keywords": "^3.5.2",
+            "schema-utils": "^2.7.0"
+        },
+        "webpack": {
+            "ajv": "^8.12.0"
+        },
+        "terser-webpack-plugin": {
+            "ajv": "^8.12.0",
+            "schema-utils": "^4.0.0"
+        }
     },
     "dependencies": {
         "@fluentui/react-components": "^9.46.6",
