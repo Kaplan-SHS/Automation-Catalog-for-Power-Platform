@@ -14,6 +14,7 @@ import { useImpactStyles } from './ImpactPage.styles';
 const GHC_SCALE_FACTOR = 37.5;
 
 const formatHours = (hours: number): string => {
+  if (!hours || isNaN(hours)) return '0';
   if (hours >= 1000) return `${(hours / 1000).toFixed(1)}k`;
   return `${Math.round(hours)}`;
 };
@@ -42,13 +43,14 @@ export const ImpactPage: React.FC = () => {
   const { isLoading, data } = useGetOrgImpact(appEnv!);
 
   const ghcProjection = useMemo(() => {
-    if (!data) return 0;
+    if (!data || !data.totalHoursSaved) return 0;
     return Math.round(data.totalHoursSaved * GHC_SCALE_FACTOR);
   }, [data]);
 
   const maxTrendValue = useMemo(() => {
-    if (!data?.monthlyTrend?.length) return 1;
-    return Math.max(...data.monthlyTrend.map(m => m.hoursSaved));
+    if (!data || !data.monthlyTrend || !data.monthlyTrend.length) return 1;
+    const max = Math.max(...data.monthlyTrend.map((m: any) => m.hoursSaved || 0));
+    return max > 0 ? max : 1;
   }, [data]);
 
   if (isLoading) {
@@ -61,7 +63,15 @@ export const ImpactPage: React.FC = () => {
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <RootCanvas>
+        <div className={styles.loadingContainer}>
+          <Text>No impact data available yet.</Text>
+        </div>
+      </RootCanvas>
+    );
+  }
 
   return (
     <RootCanvas>
@@ -84,58 +94,58 @@ export const ImpactPage: React.FC = () => {
             />
             <StatCard
               label="Total Automations Run"
-              value={data.totalRuns.toLocaleString()}
+              value={(data.totalRuns || 0).toLocaleString()}
               subtext="this month"
               icon={<ArrowTrending24Regular style={{ width: 20, height: 20 }} />}
             />
             <StatCard
               label="Active Users"
-              value={data.activeUsers.toString()}
+              value={String(data.activeUsers || 0)}
               subtext="using at least 1 automation"
               icon={<People24Regular style={{ width: 20, height: 20 }} />}
             />
             <StatCard
               label="Automations Installed"
-              value={data.totalAutomationsInstalled.toLocaleString()}
+              value={(data.totalAutomationsInstalled || 0).toLocaleString()}
               subtext="total across all users"
               icon={<Trophy24Regular style={{ width: 20, height: 20 }} />}
             />
           </div>
 
-          <div className={styles.section}>
-            <Text className={styles.sectionTitle}>Monthly Trend — Hours Saved</Text>
-            <div className={styles.trendCard}>
-              <div className={styles.barChart}>
-                {data.monthlyTrend.map((month, index) => {
-                  const isCurrentMonth = index === data.monthlyTrend.length - 1;
-                  const heightPct = maxTrendValue > 0
-                    ? Math.max(4, (month.hoursSaved / maxTrendValue) * 100)
-                    : 4;
-                  return (
-                    <div key={month.month} className={styles.barWrapper}>
-                      <Text className={styles.barValue}>{formatHours(month.hoursSaved)}h</Text>
-                      <div
-                        className={`${styles.bar} ${isCurrentMonth ? styles.barCurrent : ''}`}
-                        style={{ height: `${heightPct}%` }}
-                        title={`${month.month}: ${month.hoursSaved} hours saved`}
-                      />
-                      <Text className={styles.barLabel}>{month.month}</Text>
-                    </div>
-                  );
-                })}
+          {data.monthlyTrend && data.monthlyTrend.length > 0 && (
+            <div className={styles.section}>
+              <Text className={styles.sectionTitle}>Monthly Trend — Hours Saved</Text>
+              <div className={styles.trendCard}>
+                <div className={styles.barChart}>
+                  {data.monthlyTrend.map((month: any, index: number) => {
+                    const isCurrentMonth = index === data.monthlyTrend.length - 1;
+                    const hours = month.hoursSaved || 0;
+                    const heightPct = Math.max(4, (hours / maxTrendValue) * 100);
+                    return (
+                      <div key={`month-${index}`} className={styles.barWrapper}>
+                        <Text className={styles.barValue}>{formatHours(hours)}h</Text>
+                        <div
+                          className={`${styles.bar} ${isCurrentMonth ? styles.barCurrent : ''}`}
+                          style={{ height: `${heightPct}%` }}
+                        />
+                        <Text className={styles.barLabel}>{month.month || ''}</Text>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {data.topAutomation && (
+          {data.topAutomation && data.topAutomation.name && (
             <div className={styles.section}>
-              <Text className={styles.sectionTitle}>⭐ Top Automation This Month</Text>
+              <Text className={styles.sectionTitle}>Top Automation This Month</Text>
               <div className={styles.topAutomationCard}>
                 <div className={styles.topAutomationIcon}>⚡</div>
                 <div className={styles.topAutomationInfo}>
                   <Text className={styles.topAutomationName}>{data.topAutomation.name}</Text>
                   <Text className={styles.topAutomationStats}>
-                    {data.topAutomation.runs.toLocaleString()} runs · {formatHours(data.topAutomation.hoursSaved)} hours saved
+                    {(data.topAutomation.runs || 0).toLocaleString()} runs · {formatHours(data.topAutomation.hoursSaved)} hours saved
                   </Text>
                 </div>
               </div>
@@ -145,7 +155,7 @@ export const ImpactPage: React.FC = () => {
           <div className={styles.projectionBanner}>
             <div className={styles.projectionText}>
               <Text className={styles.projectionTitle}>
-                🚀 GHC-Wide Potential
+                GHC-Wide Potential
               </Text>
               <Text className={styles.projectionSubtitle}>
                 If KI Automation Hub scaled across all Graham Holdings companies (~15,000 employees), estimated monthly impact would be:
