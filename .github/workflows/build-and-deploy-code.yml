@@ -54,6 +54,12 @@ jobs:
         run: npm install --legacy-peer-deps
         working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
 
+      - name: Clear webpack cache
+        run: |
+          if exist node_modules\.cache rmdir /s /q node_modules\.cache
+        working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
+        shell: cmd
+
       - name: Build UI
         run: |
           set REACT_APP_BUILD_ID=${{ github.run_number }}
@@ -83,10 +89,12 @@ jobs:
             set REACT_APP_FAQ_URL=%FAQURL%
           )
 
+          set GENERATE_SOURCEMAP=false
           npm run build:prod
         working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
         env:
           CI: ""
+          GENERATE_SOURCEMAP: "false"
         shell: cmd
 
       - name: Copy Locales
