@@ -51,11 +51,9 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install Packages
-        run: npm install --legacy-peer-deps --force
-        working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
-
-      - name: Fix ajv
-        run: npm install ajv@8.12.0 ajv-keywords@5.1.0 --legacy-peer-deps
+        run: |
+          npm install --legacy-peer-deps
+          npm install ajv@8.12.0 ajv-keywords@5.1.0 --legacy-peer-deps --save
         working-directory: AutomationCatalogForPowerPlatform/ACPP.Client
 
       - name: Clear webpack cache
