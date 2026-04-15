@@ -12,8 +12,7 @@
         "@types/react-dom": "18.2.0",
         "ajv": "6.12.6",
         "ajv-keywords": "3.5.2",
-        "ajv-formats": "1.5.1",
-        "schema-utils": "2.7.1"
+        "ajv-formats": "1.5.1"
     },
     "dependencies": {
         "@fluentui/react-components": "^9.46.6",
