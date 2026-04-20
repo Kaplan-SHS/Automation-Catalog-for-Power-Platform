@@ -87,6 +87,12 @@ export default function Navbar() {
         paths: ['/Impact'],
       },
       {
+        id: 'findAutomation',
+        label: '🤖 Find my automation',
+        onclick: () => { navigate('/FindAutomation'); },
+        paths: ['/FindAutomation'],
+      },
+      {
         id: 'about',
         label: t('Navbar:about'),
         onclick: () => { navigate('/About'); },
