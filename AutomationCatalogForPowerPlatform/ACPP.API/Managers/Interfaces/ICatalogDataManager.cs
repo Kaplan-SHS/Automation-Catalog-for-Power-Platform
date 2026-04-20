@@ -14,5 +14,7 @@ namespace ACPP.API.Managers.Interfaces
         Task<string> GetSystemUserId(string envName, string userId);
 
         Task<List<InstalledSolutionTemplateCardModel>> GetUserItems(string? envUrl, string systemuserid);
+        
+        Task<OrgImpactModel> GetOrgImpact(string? envUrl);
     }
 }
