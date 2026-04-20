@@ -93,6 +93,18 @@ export default function Navbar() {
         paths: ['/FindAutomation'],
       },
       {
+        id: 'submit',
+        label: '📤 Submit automation',
+        onclick: () => { navigate('/Submit'); },
+        paths: ['/Submit'],
+      },
+      {
+        id: 'myLevel',
+        label: '🏆 My Level',
+        onclick: () => { navigate('/MyLevel'); },
+        paths: ['/MyLevel'],
+      },
+      {
         id: 'about',
         label: t('Navbar:about'),
         onclick: () => { navigate('/About'); },
