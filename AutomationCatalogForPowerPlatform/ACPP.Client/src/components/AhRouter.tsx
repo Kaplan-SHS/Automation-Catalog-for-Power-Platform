@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 // Modified by Kaplan International — KI Automation Hub
-
 import { useRoutes } from 'react-router-dom';
 import { HomePage } from './homePage/HomePage';
 import SearchPage from './searchPage/SearchPage';
@@ -12,12 +11,12 @@ import { Suspense } from 'react';
 import { CenteredSpinner } from './centeredSpinner/centeredSpinner';
 import { MyProfilePage } from './myProfilePage/MyProfilePage';
 import ImpactPage from './impactPage/ImpactPage';
+import FindAutomationPage from './findAutomationPage/FindAutomationPage';
 
 export const AHRouter = () => {
   const GetComponentWithSuspense = (component: JSX.Element) => {
     return <Suspense fallback={<CenteredSpinner />}>{component}</Suspense>;
   }
-
   return useRoutes([
     {
       element: <HomePage />,
@@ -54,6 +53,11 @@ export const AHRouter = () => {
       element: GetComponentWithSuspense(<ImpactPage />),
       path: '/Impact',
       id: 'impact',
+    },
+    {
+      element: GetComponentWithSuspense(<FindAutomationPage />),
+      path: '/FindAutomation',
+      id: 'findAutomation',
     },
   ]);
 };
