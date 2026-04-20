@@ -82,27 +82,21 @@ export default function Navbar() {
       },
       {
         id: 'impact',
-        label: '⚡ KI Impact',
+        label: 'KI Impact',
         onclick: () => { navigate('/Impact'); },
         paths: ['/Impact'],
       },
       {
         id: 'findAutomation',
-        label: '🤖 Find my automation',
+        label: 'Find my automation',
         onclick: () => { navigate('/FindAutomation'); },
         paths: ['/FindAutomation'],
       },
       {
         id: 'submit',
-        label: '📤 Submit automation',
+        label: 'Submit automation',
         onclick: () => { navigate('/Submit'); },
         paths: ['/Submit'],
-      },
-      {
-        id: 'myLevel',
-        label: '🏆 My Level',
-        onclick: () => { navigate('/MyLevel'); },
-        paths: ['/MyLevel'],
       },
       {
         id: 'about',
@@ -153,9 +147,6 @@ export default function Navbar() {
 
   return (
     <div className={classes.root}>
-      <div className={classes.logo}>
-        <img className={classes.logoImg} src={config.ahLogo} alt="KI Automation Hub Logo" />
-      </div>
       <div className={classes.navbarTitle}>
         <Text weight="bold" size={500}>
           KI Automation Hub
