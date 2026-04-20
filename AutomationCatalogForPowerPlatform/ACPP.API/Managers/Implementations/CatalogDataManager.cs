@@ -53,14 +53,12 @@ namespace ACPP.API.Managers.Implementations
                 {
                     return null;
                 }
-
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting catalog items");
                 return null;
             }
-
         }
 
         private async Task<List<CatalogItemFileModel>> GetAllCatalogItemFiles(HttpClient client, string[] scopes, string token, string? envUrl)
@@ -85,7 +83,6 @@ namespace ACPP.API.Managers.Implementations
                 {
                     return null;
                 }
-
             }
             catch (Exception ex)
             {
@@ -93,7 +90,7 @@ namespace ACPP.API.Managers.Implementations
                 return null;
             }
         }
-        
+
         private List<SolutionTemplateCardModel> MatchIconUrls(List<SolutionTemplateCardModel> cards, List<CatalogItemFileModel> files)
         {
             List<SolutionTemplateCardModel> finalCards = new List<SolutionTemplateCardModel>();
@@ -102,9 +99,10 @@ namespace ACPP.API.Managers.Implementations
             {
                 var matchingFiles = files.Where(file => file.CatalogItemFileId == card.SolutionApplicationsId);
 
-                if(matchingFiles != null) 
+                if (matchingFiles != null)
                 {
-                    foreach (var matchingFile in matchingFiles) {
+                    foreach (var matchingFile in matchingFiles)
+                    {
                         if (matchingFile.CatalogItemFileSize == "526430000" || matchingFile.CatalogItemFileSize == "526430001")
                         {
                             card.CardIconUrl = "data:image/jpeg;base64, " + matchingFile.CatalogItemFileData;
@@ -121,12 +119,10 @@ namespace ACPP.API.Managers.Implementations
             }
 
             return finalCards;
-
         }
-                
+
         public async Task<string[]> SearchCards(SearchCardsRequestModel searchCardsRequestModel)
         {
-
             try
             {
                 string[] scopes = new[] { $"{_configuration.CatalogEnvUrl}/{_configuration.TokenScope}" };
@@ -151,7 +147,6 @@ namespace ACPP.API.Managers.Implementations
                 {
                     return null;
                 }
-
             }
             catch (Exception ex)
             {
@@ -179,6 +174,7 @@ namespace ACPP.API.Managers.Implementations
             }
             return "No response";
         }
+
         public async Task<string> GetSystemUserId(string? envUrl, string userId)
         {
             try
@@ -234,6 +230,98 @@ namespace ACPP.API.Managers.Implementations
             {
                 _logger.LogError(ex, "Error getting installed items");
                 return null;
+            }
+        }
+
+        public async Task<OrgImpactModel> GetOrgImpact(string? envUrl)
+        {
+            try
+            {
+                string[] scopes = new[] { $"{envUrl ?? _configuration.CatalogEnvUrl}/{_configuration.TokenScope}" };
+                string token = await GetTokenForCatalog(scopes);
+                string queryParameters = $"/?$select=_mspcat_catalogitem_value,createdon,mspcat_templatesuffixid,mspcat_settings,mspcat_environmenturl&$expand=mspcat_CatalogItem&$filter=statuscode eq 526430003 and _mspcat_publisher_value eq {_configuration.PublisherId}";
+                var value = await makeHttpCall(_configuration.TokenScope, token, queryParameters, _configuration.CatalogEnvUrl, _configuration.InstallHistoriesEndPoint, true);
+
+                if (string.IsNullOrEmpty(value))
+                    return new OrgImpactModel();
+
+                List<InstalledSolutionTemplateCardModel> allItems = JsonConvert.DeserializeObject<List<InstalledSolutionTemplateCardModel>>(value);
+                if (allItems == null)
+                    return new OrgImpactModel();
+
+                var tasks = allItems.Select(item => PopulateItemDetails(item)).ToArray();
+                await Task.WhenAll(tasks);
+
+                double totalHoursSaved = 0;
+                int totalRuns = 0;
+                var activeUserIds = new HashSet<string>();
+                var automationStats = new Dictionary<string, (string name, int runs, double hours)>();
+                var monthlyData = new Dictionary<string, (double hours, int runs)>();
+
+                foreach (var item in allItems)
+                {
+                    if (item.objectId != null)
+                        activeUserIds.Add(item.objectId);
+
+                    totalRuns += item.flowRuns;
+
+                    double timeSaving = 0;
+                    if (item.mspcat_CatalogItem?.TimeSavingValue != null &&
+                        double.TryParse(item.mspcat_CatalogItem.TimeSavingValue, out double savingValue))
+                    {
+                        string unit = item.mspcat_CatalogItem.TimeSavingUnit ?? "";
+                        if (unit.Contains("min", StringComparison.OrdinalIgnoreCase))
+                            timeSaving = (savingValue * item.flowRuns) / 60.0;
+                        else if (unit.Contains("hour", StringComparison.OrdinalIgnoreCase))
+                            timeSaving = savingValue * item.flowRuns;
+                    }
+
+                    totalHoursSaved += timeSaving;
+
+                    string autoName = item.mspcat_CatalogItem?.SolutionName ?? "Unknown";
+                    if (!automationStats.ContainsKey(autoName))
+                        automationStats[autoName] = (autoName, 0, 0);
+                    var existing = automationStats[autoName];
+                    automationStats[autoName] = (autoName, existing.runs + item.flowRuns, existing.hours + timeSaving);
+
+                    if (DateTime.TryParse(item.InstalledOn, out DateTime installedDate))
+                    {
+                        string monthKey = installedDate.ToString("MMM");
+                        if (!monthlyData.ContainsKey(monthKey))
+                            monthlyData[monthKey] = (0, 0);
+                        var m = monthlyData[monthKey];
+                        monthlyData[monthKey] = (m.hours + timeSaving, m.runs + item.flowRuns);
+                    }
+                }
+
+                var topAuto = automationStats.Values
+                    .OrderByDescending(a => a.runs)
+                    .FirstOrDefault();
+
+                return new OrgImpactModel
+                {
+                    TotalHoursSaved = Math.Round(totalHoursSaved, 1),
+                    TotalRuns = totalRuns,
+                    ActiveUsers = activeUserIds.Count,
+                    TotalAutomationsInstalled = allItems.Count,
+                    TopAutomation = topAuto.name != null ? new TopAutomationModel
+                    {
+                        Name = topAuto.name,
+                        Runs = topAuto.runs,
+                        HoursSaved = Math.Round(topAuto.hours, 1)
+                    } : null,
+                    MonthlyTrend = monthlyData.Select(m => new MonthlyTrendModel
+                    {
+                        Month = m.Key,
+                        HoursSaved = Math.Round(m.Value.hours, 1),
+                        Runs = m.Value.runs
+                    }).ToList()
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting org impact data");
+                return new OrgImpactModel();
             }
         }
 
@@ -378,6 +466,7 @@ namespace ACPP.API.Managers.Implementations
                 _logger.LogError(ex, "Error populating flow details");
             }
         }
+
         private async Task<string> GetTokenForCatalog(string[] scopes)
         {
             string userToken = _httpContextAccessor.HttpContext.Request.Headers.Authorization.ToString().Replace("Bearer ", "");
@@ -395,8 +484,8 @@ namespace ACPP.API.Managers.Implementations
                     new
                     {
                         Name = "mspcat_applications",
-                        SearchColumns =  new[] { "mspcat_name", "mspcat_description" },
-                        SelectColumns =  new[] { "mspcat_name", "mspcat_applicationid" },
+                        SearchColumns = new[] { "mspcat_name", "mspcat_description" },
+                        SelectColumns = new[] { "mspcat_name", "mspcat_applicationid" },
                     }
                 }),
                 options = JsonConvert.SerializeObject(new
@@ -405,11 +494,9 @@ namespace ACPP.API.Managers.Implementations
                     searchmode = "Any",
                     besteffortsearchenabled = true,
                 })
-
             };
 
             return JsonConvert.SerializeObject(searchRequest);
         }
     }
 }
-
