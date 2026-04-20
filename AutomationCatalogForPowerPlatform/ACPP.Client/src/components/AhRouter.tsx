@@ -12,6 +12,8 @@ import { CenteredSpinner } from './centeredSpinner/centeredSpinner';
 import { MyProfilePage } from './myProfilePage/MyProfilePage';
 import ImpactPage from './impactPage/ImpactPage';
 import FindAutomationPage from './findAutomationPage/FindAutomationPage';
+import SubmitAutomationPage from './submitAutomationPage/SubmitAutomationPage';
+import GamificationPage from './gamificationPage/GamificationPage';
 
 export const AHRouter = () => {
   const GetComponentWithSuspense = (component: JSX.Element) => {
@@ -58,6 +60,16 @@ export const AHRouter = () => {
       element: GetComponentWithSuspense(<FindAutomationPage />),
       path: '/FindAutomation',
       id: 'findAutomation',
+    },
+    {
+      element: GetComponentWithSuspense(<SubmitAutomationPage />),
+      path: '/Submit',
+      id: 'submit',
+    },
+    {
+      element: GetComponentWithSuspense(<GamificationPage />),
+      path: '/MyLevel',
+      id: 'myLevel',
     },
   ]);
 };
