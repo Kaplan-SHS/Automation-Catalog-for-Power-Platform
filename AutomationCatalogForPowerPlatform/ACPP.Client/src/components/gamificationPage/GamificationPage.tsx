@@ -68,8 +68,8 @@ const GamificationPage: React.FC = () => {
   }, [totalHours, currentLevel, nextLevel]);
 
   const unlockedBadges = useMemo(() => {
-    return BADGES.filter(b => b.condition(totalAutomations, totalHours));
-  }, [totalAutomations, totalHours]);
+  return BADGES.filter(b => b.condition(totalAutomations, totalHours));
+}, [totalAutomations, totalHours]);
 
   if (isLoading) {
     return (
