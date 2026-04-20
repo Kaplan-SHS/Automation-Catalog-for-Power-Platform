@@ -1,20 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+// Modified by Kaplan International — KI Automation Hub
 
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, LargeTitle, Link } from '@fluentui/react-components';
 import { Divider } from '@fluentui/react-divider';
 import { Dismiss16Regular } from '@fluentui/react-icons';
-import {
-    MessageBar, MessageBarActions, MessageBarBody, MessageBarIntent
-} from '@fluentui/react-components';
+import { MessageBar, MessageBarActions, MessageBarBody, MessageBarIntent } from '@fluentui/react-components';
 import { DisplayCanvas } from '../../common/controls/DisplayCanvas/DisplayCanvas';
 import { RootCanvas } from '../../common/controls/RootCanvas/RootCanvas';
 import { useGetAnnouncementBannerData } from '../../hooks/useGetAnnouncementBannerData';
 import Categories from '../categories/Categories';
 import IdeaSubmission from '../ideaSubmission/IdeaSubmission';
-import { SearchBar } from '../searchBar/SearchBar';
 import { useStyles } from './HomePage.styles';
 import { useCommonStyles } from '../../common.styles';
 import { UserContext } from '../../common/contexts/UserContext';
@@ -85,35 +83,27 @@ export const HomePage = () => {
     useEffect(() => {
         setCurrentPage("homepage");
         if (campaignId && source) {
-            trackEvent("MARKETING_REDIRECTION",
-                {
-                    eventName: "userLandedFromMarketing",
-                    eventType: EventTypes.USER_EVENT,
-                    eventDetails: {
-                        cardUniqueId: cardUniqueName,
-                        cardDeeplinkSource: source,
-                        campaignId: campaignId
-                    }
+            trackEvent("MARKETING_REDIRECTION", {
+                eventName: "userLandedFromMarketing",
+                eventType: EventTypes.USER_EVENT,
+                eventDetails: {
+                    cardUniqueId: cardUniqueName,
+                    cardDeeplinkSource: source,
+                    campaignId: campaignId
                 }
-            )
+            });
         }
-        const deepLinkData = {
-            cardUniqueName: '',
-            source: '',
-            campaignId: '',
-        };
-
-        //clear the context to avoid infinite redirection
+        const deepLinkData = { cardUniqueName: '', source: '', campaignId: '' };
         typeof clearContext == 'function' && clearContext(deepLinkData);
         if (cardUniqueName) {
-            navigate("/ItemDetails", { state: { cardUniqueName: cardUniqueName } })
+            navigate("/ItemDetails", { state: { cardUniqueName: cardUniqueName } });
         }
     }, [campaignId, cardUniqueName, source]);
 
     const renderFeaturedCarousel = useCallback(() => {
         return featuredCards.length > 0 ?
             <div className={styles.featuredCarousel}>
-                <CardCarousel cards={featuredCards} headerTitle={t('featured')} cardIsImage searchSelectedCategories={[t('featured')]} carouselClassname={styles.carouselClassname}/>
+                <CardCarousel cards={featuredCards} headerTitle={t('featured')} cardIsImage searchSelectedCategories={[t('featured')]} carouselClassname={styles.carouselClassname} />
             </div>
             : <div className={styles.marginTop}></div>;
     }, [featuredCards]);
@@ -158,33 +148,18 @@ export const HomePage = () => {
 
     return (
         <RootCanvas>
-            {
-                isSM && renderPDEBanner()
-            }
-            {
-                isSM && renderAnnouncementBanner()
-            }
+            {isSM && renderPDEBanner()}
+            {isSM && renderAnnouncementBanner()}
             <div className={styles.homeHeader}>
                 <LargeTitle className={styles.welcomeText}>{welcomeText}</LargeTitle>
-                <SearchBar className={styles.searchBar} />
             </div>
             <DisplayCanvas>
-                {
-                    !isSM && renderPDEBanner()
-                }
-                {
-                    !isSM && renderAnnouncementBanner()
-                }
-                {
-                    renderFeaturedCarousel()
-                }
-                {
-                    config.feedbackFormUrl && <IdeaSubmission />
-                }
+                {!isSM && renderPDEBanner()}
+                {!isSM && renderAnnouncementBanner()}
+                {renderFeaturedCarousel()}
+                {config.feedbackFormUrl && <IdeaSubmission />}
                 <Divider className={styles.divider} />
-                {
-                    renderCategories()
-                }
+                {renderCategories()}
             </DisplayCanvas>
         </RootCanvas>
     );
