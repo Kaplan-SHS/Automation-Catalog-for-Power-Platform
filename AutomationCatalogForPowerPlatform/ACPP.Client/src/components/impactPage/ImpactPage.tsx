@@ -158,7 +158,7 @@ export const ImpactPage: React.FC = () => {
                 GHC-Wide Potential
               </Text>
               <Text className={styles.projectionSubtitle}>
-                If KI Automation Hub scaled across all Graham Holdings companies (~15,000 employees), estimated monthly impact would be:
+                If KI Automation Hub scaled across all Graham Holdings companies (~21,000 employees), estimated monthly impact would be:
               </Text>
             </div>
             <div className={styles.projectionStat}>
