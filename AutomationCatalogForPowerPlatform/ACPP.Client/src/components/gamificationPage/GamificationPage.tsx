@@ -67,9 +67,6 @@ const GamificationPage: React.FC = () => {
     return Math.min(100, Math.round((progress / range) * 100));
   }, [totalHours, currentLevel, nextLevel]);
 
-  const unlockedBadges = useMemo(() => {
-  return BADGES.filter(b => b.condition(totalAutomations, totalHours));
-}, [totalAutomations, totalHours]);
 
   if (isLoading) {
     return (
