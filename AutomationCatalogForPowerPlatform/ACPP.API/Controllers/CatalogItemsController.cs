@@ -4,10 +4,8 @@
 using ACPP.API.Managers.Interfaces;
 using ACPP.API.Models;
 using ACPP.API.Utilities;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace ACPP.API.Controllers
 {
@@ -31,13 +29,12 @@ namespace ACPP.API.Controllers
         public async Task<List<SolutionTemplateCardModel>> GetTemplatesFromCatalog(string? envUrl)
         {
             List<SolutionTemplateCardModel> result = await _catalogDataManager.GetAllItems(envUrl);
-            if(result == null)
+            if (result == null)
             {
                 throw new Exception("Error getting catalog items");
             }
             return result;
         }
-
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -68,6 +65,14 @@ namespace ACPP.API.Controllers
             }
             return result;
         }
+
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Route("GetOrgImpact")]
+        public async Task<OrgImpactModel> GetOrgImpact(string? envUrl)
+        {
+            return await _catalogDataManager.GetOrgImpact(envUrl);
+        }
     }
 }
-
