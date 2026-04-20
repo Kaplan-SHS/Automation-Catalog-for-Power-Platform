@@ -11,7 +11,7 @@ import { RootCanvas } from '../../common/controls/RootCanvas/RootCanvas';
 import { useGetOrgImpact } from '../../hooks/useGetOrgImpact';
 import { useImpactStyles } from './ImpactPage.styles';
 
-const GHC_SCALE_FACTOR = 37.5;
+const GHC_SCALE_FACTOR = 53.6;
 
 const formatHours = (hours: number): string => {
   if (!hours || isNaN(hours)) return '0';
