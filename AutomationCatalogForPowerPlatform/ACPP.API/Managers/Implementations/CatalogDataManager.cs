@@ -292,13 +292,24 @@ namespace ACPP.API.Managers.Implementations
                     var existing = automationStats[autoName];
                     automationStats[autoName] = (autoName, existing.runs + item.flowRuns, existing.minutes + minutesSaved);
 
-                    if (DateTime.TryParse(item.InstalledOn, out DateTime installedDate))
+                    // Agrupar por mes/año real de ejecución de flows
+                    foreach (var runDate in item.FlowRunDates)
                     {
-                        string monthKey = installedDate.ToString("MMM");
+                        string monthKey = runDate.ToString("MMM yyyy");
                         if (!monthlyData.ContainsKey(monthKey))
                             monthlyData[monthKey] = (0, 0);
                         var m = monthlyData[monthKey];
-                        monthlyData[monthKey] = (m.minutes + minutesSaved, m.runs + item.flowRuns);
+
+                        double minutesPerRun = 0;
+                        if (item.mspcat_CatalogItem?.TimeSavingValue != null &&
+                            double.TryParse(item.mspcat_CatalogItem.TimeSavingValue, out double sv))
+                        {
+                            string timeSavingType = item.mspcat_CatalogItem.TimeSavingType ?? "0";
+                            if (timeSavingType == "919440000") // Per run
+                                minutesPerRun = sv;
+                        }
+
+                        monthlyData[monthKey] = (m.minutes + minutesPerRun, m.runs + 1);
                     }
                 }
 
@@ -320,12 +331,15 @@ namespace ACPP.API.Managers.Implementations
                         Runs = topAuto.runs,
                         HoursSaved = Math.Round(topAuto.minutes / 60.0, 1)
                     } : null,
-                    MonthlyTrend = monthlyData.Select(m => new MonthlyTrendModel
-                    {
-                        Month = m.Key,
-                        HoursSaved = Math.Round(m.Value.minutes / 60.0, 1),
-                        Runs = m.Value.runs
-                    }).ToList()
+                    MonthlyTrend = monthlyData
+                        .OrderBy(m => DateTime.ParseExact(m.Key, "MMM yyyy", System.Globalization.CultureInfo.InvariantCulture))
+                        .Select(m => new MonthlyTrendModel
+                        {
+                            Month = m.Key,
+                            HoursSaved = Math.Round(m.Value.minutes / 60.0, 1),
+                            Runs = m.Value.runs
+                        })
+                        .ToList()
                 };
             }
             catch (Exception ex)
@@ -334,7 +348,6 @@ namespace ACPP.API.Managers.Implementations
                 return new OrgImpactModel();
             }
         }
-
 
         private async Task PopulateItemDetails(InstalledSolutionTemplateCardModel item)
         {
@@ -448,6 +461,8 @@ namespace ACPP.API.Managers.Implementations
             {
                 item.flowRuns = 0;
                 item.flowUrl = "";
+                item.FlowRunDates = new List<DateTime>();
+
                 if (item.objectId != null)
                 {
                     string queryParameters = $"/?$select=workflowid,flowrunid,status,endtime&$filter=status eq 'Succeeded' and workflowid eq {item.objectId}";
@@ -456,18 +471,23 @@ namespace ACPP.API.Managers.Implementations
                     {
                         JArray flowrunJson = JArray.Parse(value);
                         item.flowRuns = flowrunJson.Count;
-                        item.noOfDaysWithAtleastOneSuccessfulRun = flowrunJson
-                            .Select(x => DateTime.Parse(x["endtime"].ToString()).ToString("yyyy-MM-dd"))
+
+                        var runDates = flowrunJson
+                            .Select(x => DateTime.Parse(x["endtime"].ToString()))
+                            .ToList();
+
+                        item.FlowRunDates = runDates;
+
+                        item.noOfDaysWithAtleastOneSuccessfulRun = runDates
+                            .Select(d => d.ToString("yyyy-MM-dd"))
                             .Distinct()
                             .Count();
+
                         var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
-                        var successfulRuns = flowrunJson
-                            .Where(x => DateTime.Parse(x["endtime"].ToString()) >= thirtyDaysAgo)
-                            .Select(x => DateTime.Parse(x["endtime"].ToString()))
-                            .GroupBy(date => (date - thirtyDaysAgo).Days / 7)
-                            .Where(group => group.Any())
-                            .Count();
-                        item.noOfWeeksWithAtleastOneSuccessfulRun = successfulRuns;
+                        item.noOfWeeksWithAtleastOneSuccessfulRun = runDates
+                            .Where(d => d >= thirtyDaysAgo)
+                            .GroupBy(d => (d - thirtyDaysAgo).Days / 7)
+                            .Count(g => g.Any());
                     }
                     item.flowUrl = $"https://make.powerautomate.com/environments/{item.environmentId}/flows/{item.objectId}/details";
                 }
