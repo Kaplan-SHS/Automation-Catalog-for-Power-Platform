@@ -19,6 +19,17 @@ const formatHours = (hours: number): string => {
   return `${Math.round(hours)}`;
 };
 
+const getLast6Months = (): string[] => {
+  const months = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const label = d.toLocaleString('en-US', { month: 'short' }) + ' ' + d.getFullYear();
+    months.push(label);
+  }
+  return months;
+};
+
 const StatCard: React.FC<{
   label: string;
   value: string;
@@ -47,11 +58,26 @@ export const ImpactPage: React.FC = () => {
     return Math.round(data.totalHoursSaved * GHC_SCALE_FACTOR);
   }, [data]);
 
-  const maxTrendValue = useMemo(() => {
-    if (!data || !data.monthlyTrend || !data.monthlyTrend.length) return 1;
-    const max = Math.max(...data.monthlyTrend.map((m: any) => m.hoursSaved || 0));
-    return max > 0 ? max : 1;
+  const filledTrend = useMemo(() => {
+    const last6 = getLast6Months();
+    const dataMap: Record<string, { hoursSaved: number; runs: number }> = {};
+    if (data?.monthlyTrend) {
+      data.monthlyTrend.forEach((m: any) => {
+        dataMap[m.month] = { hoursSaved: m.hoursSaved || 0, runs: m.runs || 0 };
+      });
+    }
+    return last6.map(month => ({
+      month,
+      hoursSaved: dataMap[month]?.hoursSaved || 0,
+      runs: dataMap[month]?.runs || 0,
+    }));
   }, [data]);
+
+  const maxTrendValue = useMemo(() => {
+    if (!filledTrend.length) return 1;
+    const max = Math.max(...filledTrend.map(m => m.hoursSaved));
+    return max > 0 ? max : 1;
+  }, [filledTrend]);
 
   if (isLoading) {
     return (
@@ -112,30 +138,28 @@ export const ImpactPage: React.FC = () => {
             />
           </div>
 
-          {data.monthlyTrend && data.monthlyTrend.length > 0 && (
-            <div className={styles.section}>
-              <Text className={styles.sectionTitle}>Monthly Trend — Hours Saved</Text>
-              <div className={styles.trendCard}>
-                <div className={styles.barChart}>
-                  {data.monthlyTrend.map((month: any, index: number) => {
-                    const isCurrentMonth = index === data.monthlyTrend.length - 1;
-                    const hours = month.hoursSaved || 0;
-                    const heightPct = Math.max(4, (hours / maxTrendValue) * 100);
-                    return (
-                      <div key={`month-${index}`} className={styles.barWrapper}>
-                        <Text className={styles.barValue}>{formatHours(hours)}h</Text>
-                        <div
-                          className={`${styles.bar} ${isCurrentMonth ? styles.barCurrent : ''}`}
-                          style={{ height: `${heightPct}%` }}
-                        />
-                        <Text className={styles.barLabel}>{month.month || ''}</Text>
-                      </div>
-                    );
-                  })}
-                </div>
+          <div className={styles.section}>
+            <Text className={styles.sectionTitle}>Monthly Trend — Hours Saved</Text>
+            <div className={styles.trendCard}>
+              <div className={styles.barChart}>
+                {filledTrend.map((month, index) => {
+                  const isCurrentMonth = index === filledTrend.length - 1;
+                  const hours = month.hoursSaved || 0;
+                  const heightPct = Math.max(4, (hours / maxTrendValue) * 100);
+                  return (
+                    <div key={`month-${index}`} className={styles.barWrapper}>
+                      <Text className={styles.barValue}>{formatHours(hours)}h</Text>
+                      <div
+                        className={`${styles.bar} ${isCurrentMonth ? styles.barCurrent : ''}`}
+                        style={{ height: `${heightPct}%` }}
+                      />
+                      <Text className={styles.barLabel}>{month.month}</Text>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          )}
+          </div>
 
           {data.topAutomation && data.topAutomation.name && (
             <div className={styles.section}>
