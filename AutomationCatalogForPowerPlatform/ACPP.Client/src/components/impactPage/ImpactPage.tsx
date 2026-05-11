@@ -20,7 +20,7 @@ const formatHours = (hours: number): string => {
 };
 
 const getLast6Months = (): string[] => {
-  const months = [];
+  const months: string[] = [];
   const now = new Date();
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
